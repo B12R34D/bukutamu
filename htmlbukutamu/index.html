@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buku Tamu PT.Combiphar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f1f1f1;
+            padding: 20px;
+            background-image: url('tkt.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+        }
+
+        .background-img {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            margin: 50px auto;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .buku-tamu-section {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        input[type="text"], input[type="tel"], input[type="date"], input[type="submit"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        #buku-tamu-history {
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        #view-history-btn {
+            background-color: rgb(24, 24, 92);
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #history-table th, #history-table td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #history-table th {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+
+        #history-table td {
+            text-align: center;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-img">
+        <div class="buku-tamu-section">
+            <form id="buku-tamu-form">
+                <h2>Buku Tamu</h2>
+                <h2>PT.Combiphar</h2>
+                <input type="text" id="name" placeholder="Name" required autocomplete="name">
+                <input type="tel" id="phone" placeholder="Phone" required autocomplete="tel">
+                <input type="text" id="institution" placeholder="Institution" required autocomplete="organization">
+                <input type="text" id="purpose" placeholder="Purpose" required autocomplete="off">
+                <input type="text" id="meeting" placeholder="Meeting With" required autocomplete="name">
+                <input type="date" id="date" required autocomplete="off">
+                <input type="time" id="timeIn" placeholder="Time In" required autocomplete="off">
+                <input type="time" id="timeOut" placeholder="Time Out" required autocomplete="off">
+                <input type="submit" value="Book Buku Tamu">
+            </form>
+            <button id="view-history-btn">View History</button>
+            <button id="download-excel-btn">Download Excel</button> <!-- Tambahkan tombol Download Excel -->
+        </div>
+    </div>
+    <div id="buku-tamu-history" style="display: none;">
+        <h3>Buku Tamu History</h3>
+        <table id="history-table">
+            <thead>
+                <tr>
+                    <th>Buku Tamu ID</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Institution</th>
+                    <th>Purpose</th>
+                    <th>Meeting With</th>
+                    <th>Date</th>
+                    <th>Time In</th>
+                    <th>Time Out</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="history-table-body">
+                <!-- Buku Tamu history rows will be dynamically added here -->
+            </tbody>
+        </table>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script> <!-- Sertakan library XLSX -->
+    <script>
+        document.getElementById("buku-tamu-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            // Gather user input
+            var name = document.getElementById("name").value;
+            var phone = document.getElementById("phone").value; // New: Get phone
+            var institution = document.getElementById("institution").value; // New: Get institution
+            var purpose = document.getElementById("purpose").value; // New: Get purpose
+            var meeting = document.getElementById("meeting").value; // New: Get meeting
+            var date = document.getElementById("date").value;
+            var timeIn = document.getElementById("timeIn").value; // New: Get time in
+            var timeOut = document.getElementById("timeOut").value; // New: Get time out
+
+            // Generate buku tamu ID (simple demonstration)
+            var bukuTamuId = "T" + Math.floor(Math.random() * 10000);
+
+            // Add buku tamu details to history table
+            var tableBody = document.getElementById("history-table-body");
+            var newRow = tableBody.insertRow();
+            newRow.innerHTML = "<td>" + bukuTamuId + "</td><td>" + name + "</td><td>" + phone + "</td><td>" + institution + "</td><td>" + purpose + "</td><td>" + meeting + "</td><td>" + date + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td>Booked</td><td><button class='delete-btn' data-buku-tamu-id='" + bukuTamuId + "'>Delete</button></td>";
+
+            // Display alert for successful booking and generated buku tamu ID
+            alert("Buku Tamu with ID " + bukuTamuId + " has been booked successfully.");
+            document.getElementById("buku-tamu-form").reset();
+        });
+
+        document.getElementById("view-history-btn").addEventListener("click", function() {
+            document.getElementById("buku-tamu-history").style.display = "block";
+        });
+
+        document.getElementById("buku-tamu-history").addEventListener("click", function(event) {
+            if (event.target.classList.contains('delete-btn')) {
+                var bukuTamuIdToDelete = event.target.getAttribute('data-buku-tamu-id');
+                // Delete buku tamu logic (for demonstration, we'll remove the row from table)
+                event.target.closest('tr').remove();
+                alert("Buku Tamu with ID " + bukuTamuIdToDelete + " has been deleted.");
+            }
+        });
+
+        // Function to convert table data to Excel file and download it
+        function downloadExcel() {
+            var table = document.getElementById("history-table");
+            var wb = XLSX.utils.table_to_book(table, {sheet:"Sheet JS"});
+            var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
+
+            function s2ab(s) {
+                var buf = new ArrayBuffer(s.length);
+                var view = new Uint8Array(buf);
+                for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+                return buf;
+            }
+
+            saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'buku_tamu_history.xlsx');
+        }
+
+        // Event listener for "Download Excel" button
+        document.getElementById("download-excel-btn").addEventListener("click", function() {
+            downloadExcel(); // Call downloadExcel function when the button is clicked
+        });
+    </script>
+</body>
+</html>

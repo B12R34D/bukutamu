@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Izin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f1f1f1;
+            padding: 20px;
+            background-image: url('tkt.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+        }
+
+        .background-img {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            margin: 50px auto;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .izin-section {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        input[type="text"], input[type="tel"], input[type="date"], input[type="submit"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+
+        #izin-history {
+            margin-top: 20px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        #view-history-btn {
+            background-color: rgb(24, 24, 92);
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        #history-table th, #history-table td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        #history-table th {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+
+        #history-table td {
+            text-align: center;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-img">
+        <div class="izin-section">
+            <form id="izin-form">
+                <h2>Izin</h2>
+                <input type="text" id="name" placeholder="Name" required autocomplete="name">
+                <input type="tel" id="phone" placeholder="Phone" required autocomplete="tel">
+                <input type="text" id="divisi" placeholder="Divisi" required autocomplete="organization">
+                <input type="text" id="purpose" placeholder="Purpose" required autocomplete="off">
+                <input type="date" id="date" required autocomplete="off">
+                <input type="time" id="timeIn" placeholder="Time In" required autocomplete="off">
+                <input type="time" id="timeOut" placeholder="Time Out" required autocomplete="off">
+                <input type="submit" value="Book Izin">
+            </form>
+            <button id="view-history-btn">View History</button>
+            <button id="download-excel-btn">Download Excel</button>
+        </div>
+    </div>
+    <div id="izin-history" style="display: none;">
+        <h3>Izin History</h3>
+        <table id="history-table">
+            <thead>
+                <tr>
+                    <th>Izin ID</th>
+                    <th>Name</th>
+                    <th>Phone</th>
+                    <th>Divisi</th>
+                    <th>Purpose</th>
+                    <th>Date</th>
+                    <th>Time In</th>
+                    <th>Time Out</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="history-table-body">
+            </tbody>
+        </table>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <script>
+        document.getElementById("izin-form").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            var name = document.getElementById("name").value;
+            var phone = document.getElementById("phone").value;
+            var divisi = document.getElementById("divisi").value;
+            var purpose = document.getElementById("purpose").value;
+            var date = document.getElementById("date").value;
+            var timeIn = document.getElementById("timeIn").value;
+            var timeOut = document.getElementById("timeOut").value;
+
+            var izinId = "I" + Math.floor(Math.random() * 10000);
+
+            var tableBody = document.getElementById("history-table-body");
+            var newRow = tableBody.insertRow();
+            newRow.innerHTML = "<td>" + izinId + "</td><td>" + name + "</td><td>" + phone + "</td><td>" + divisi + "</td><td>" + purpose + "</td><td>" + date + "</td><td>" + timeIn + "</td><td>" + timeOut + "</td><td>Booked</td><td><button class='delete-btn' data-izin-id='" + izinId + "'>Delete</button></td>";
+
+            alert("Izin dengan ID " + izinId + " telah berhasil dipesan.");
+            document.getElementById("izin-form").reset();
+        });
+
+        document.getElementById("view-history-btn").addEventListener("click", function() {
+            document.getElementById("izin-history").style.display = "block";
+        });
+
+        document.getElementById("izin-history").addEventListener("click", function(event) {
+            if (event.target.classList.contains('delete-btn')) {
+                var izinIdToDelete = event.target.getAttribute('data-izin-id');
+                event.target.closest('tr').remove();
+                alert("Izin dengan ID " + izinIdToDelete + " telah dihapus.");
+            }
+        });
+
+        function downloadExcel() {
+            var table = document.getElementById("history-table");
+            var wb = XLSX.utils.table_to_book(table, {sheet:"Sheet JS"});
+            var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
+
+            function s2ab(s) {
+                var buf = new ArrayBuffer(s.length);
+                var view = new Uint8Array(buf);
+                for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+                return buf;
+            }
+
+            saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'izin_history.xlsx');
+        }
+
+        document.getElementById("download-excel-btn").addEventListener("click", function() {
+            downloadExcel();
+        });
+    </script>
+</body>
+</html>
